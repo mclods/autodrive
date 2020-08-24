@@ -6,6 +6,7 @@
 #include <vector>
 #include <chrono>
 #include <ctime>
+#include <wiringPi.h>
 
 using namespace std;
 using namespace cv;
@@ -153,6 +154,12 @@ void capture()
 
 int main(int argc, char **argv)
 {
+    wiringPiSetup();
+    pinMode(21, OUTPUT);
+    pinMode(22, OUTPUT);
+    pinMode(23, OUTPUT);
+    pinMode(24, OUTPUT);
+
     cout << "Connecting to Camera ..." << "\n";
 
     if(!camera.open())
@@ -190,6 +197,78 @@ int main(int argc, char **argv)
 
         // Find Lane Center
         laneCenter();
+
+        // Arduino Communication
+        if(result == 0)
+        {
+            // decimal = 0
+            digitalWrite(21, 0); // LSB
+            digitalWrite(22, 0);
+            digitalWrite(23, 0);
+            digitalWrite(24, 0); // MSB
+
+            cout << "Forward" << "\n";
+        }
+        else if(result > 0 && result < 10)
+        {
+            // decimal = 1
+            digitalWrite(21, 1); // LSB
+            digitalWrite(22, 0);
+            digitalWrite(23, 0);
+            digitalWrite(24, 0); // MSB
+
+            cout << "Right1" << "\n";
+        }
+        else if(result >= 10 && result < 20)
+        {
+            // decimal = 2
+            digitalWrite(21, 0); // LSB
+            digitalWrite(22, 1);
+            digitalWrite(23, 0);
+            digitalWrite(24, 0); // MSB
+
+            cout << "Right2" << "\n";
+        }
+        else if(result >= 20)
+        {
+            // decimal = 3
+            digitalWrite(21, 1); // LSB
+            digitalWrite(22, 1);
+            digitalWrite(23, 0);
+            digitalWrite(24, 0); // MSB
+
+            cout << "Right3" << "\n";
+        }
+        else if(result < 0 && result > -10)
+        {
+            // decimal = 4
+            digitalWrite(21, 0); // LSB
+            digitalWrite(22, 0);
+            digitalWrite(23, 1);
+            digitalWrite(24, 0); // MSB
+
+            cout << "Left1" << "\n";
+        }
+        else if(result <= -10 && result > -20)
+        {
+            // decimal = 5
+            digitalWrite(21, 1); // LSB
+            digitalWrite(22, 0);
+            digitalWrite(23, 1);
+            digitalWrite(24, 0); // MSB
+
+            cout << "Left2" << "\n";
+        }
+        else if(result <= -20)
+        {
+            // decimal = 6
+            digitalWrite(21, 0); // LSB
+            digitalWrite(22, 1);
+            digitalWrite(23, 1);
+            digitalWrite(24, 0); // MSB
+
+            cout << "Left3" << "\n";
+        }
 
         ss.str(" ");
         ss.clear();
